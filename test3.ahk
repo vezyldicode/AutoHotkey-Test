@@ -52,13 +52,13 @@ global y9 := 659
 global c9 := 0xFFB400
 
 ; 4 vị trí đặt đồ
-global x10 := 964 ;864
+global x10 := 934 ;864
 global y10 := 690 ;690
 global x11 := 1021 ;849
 global y11 := 671 ;821
 global x12 := 1101 ;1201
 global y12 := 819 ;819
-global x13 := 949 ; 1081
+global x13 := 919 ; 1081
 global y13:= 821 ;671
 
 runRoblox(){ ;run Roblox as Administrator
@@ -237,7 +237,7 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
         NormalWaitingTime
         if (count > 10000)
             ErrorMissTime
-        if (globalDeath >2)
+        if (globalDeath >0)
             break
         if (color == c7) 
         {
@@ -264,6 +264,14 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
         if (roundcount == 14 and rechargeWait == true){
             MoveBackward
             GearSetup
+        }
+        if (roundcount == 18 and rechargeWait == true){
+            MoveBackward
+            GearSetup
+        }
+        if (roundcount == 21 and rechargeWait == true){
+            MoveBackward
+            GearSetup
             rechargeWait := false
         }
     }
@@ -271,6 +279,7 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
 
 global recharging := false
 GearSetup(){
+    global globalDeath
     global recharging
     global rechargeWait
     round := 2
@@ -279,7 +288,7 @@ GearSetup(){
     currentHotKey3 := 0
     currentX := x10
     currentY := y10
-    While (round <5){ ;setup đến hết round 4
+    While (round <5 and globalDeath ==0){ ;setup đến hết round 4
         LongWaitingTime
 
         SendEvent "1"
@@ -310,6 +319,7 @@ GearSetup(){
             currentNumforHotkey3 := NumforHotkey3round4
             ReadyUp
             recharging := false
+            rechargeWait := true
         }
 
         While (currentHoyKey1 < currentNumforHotkey1){ ;khi mà số đồ hiện có của hotkey1 bé hơn hoặc bằng số lượng đặt được trong round đấy
@@ -653,63 +663,14 @@ main(){
         SendEvent("{w up}")
 
 
-        ; SendEvent "2"
-        ; SetTimer(CloseMsgBox, 300) 
-        ; MsgBox("Đang đặt 1...", "Thông báo")
-        ; MouseMove x10, y10
-        ; NormalWaitingTime
-        ; SendEvent "{Lbutton}"
-        ; NormalWaitingTime
-
-
-        ; SendEvent "3"
-        ; SetTimer(CloseMsgBox, 300) 
-        ; MsgBox("Đang đặt 2...", "Thông báo")
-        ; MouseMove x11, y11
-        ; NormalWaitingTime
-        ; SendEvent "{Lbutton}"
-        ; NormalWaitingTime
-
-        ; ; đặt xong thì bấm ready
-        ; ReadyUp
-        
-
-        ; ;chờ đến round thứ 3
-        ; LongWaitingTime
-        ; ReadyUp
-
-        ; SendEvent "3"
-        ; SendEvent "3"
-        ; SetTimer(CloseMsgBox, 300) 
-        ; MsgBox("Đang đặt 3...", "Thông báo")
-        ; MouseMove x12, y12
-        ; NormalWaitingTime
-        ; SendEvent "{Lbutton}"
-        ; NormalWaitingTime
-
-        ; ;chờ đến round thứ 4
-        ; LongWaitingTime
-        ; ReadyUp
-
-        ; SendEvent "3"
-        ; SendEvent "3"
-        ; SetTimer(CloseMsgBox, 300) 
-        ; MsgBox("Đang đặt 4...", "Thông báo")
-        ; MouseMove x13, y13
-        ; NormalWaitingTime
-        ; SendEvent "{Lbutton}"
-        ; NormalWaitingTime
         global rechargeWait :=false
         GearSetup
         global rechargeWait := true
         global globalAutoReady := true
         ReadyUp
 
-        ; SendEvent("{s down}")
-        ; Sleep(32540)      
-        ; SendEvent("{s up}")
 
-        if (globalDeath >2){
+        if (globalDeath >0){
             SendEvent "{Esc}"
             sleep 1000
             SendEvent "L"
@@ -825,7 +786,7 @@ onButtonClick(*) {
         if (NumforHotkey3round4 == "") 
             NumforHotkey3round4 := 0
         
-        totalMinutes := userInput * 33
+        totalMinutes := userInput * 45
         hours := totalMinutes // 60
         minutes := Mod(totalMinutes, 60)
         result := " " hours "h" minutes "m"
