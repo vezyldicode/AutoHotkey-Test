@@ -69,7 +69,7 @@ runRoblox(){ ;run Roblox as Administrator
 }
 
 if !A_IsAdmin{ ; run as Administrator
-    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\test3.ahk")
+    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\Macroroblox.ahk")
     ExitApp
 }
 
@@ -279,6 +279,7 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
 
 global recharging := false
 GearSetup(){
+    x13able := true
     global globalDeath
     global recharging
     global rechargeWait
@@ -295,6 +296,7 @@ GearSetup(){
         currentHoyKey1 := 0
         currentHotKey2 := 0
         currentHotKey3 := 0
+
         if (round == 2) { ;nếu đang round 2 thì chỉnh số lượng hiện có của các đồ cho round 2
             currentNumforHotkey1 := NumforHotkey1round2
             currentNumforHotkey2 := NumforHotkey2round2
@@ -324,6 +326,12 @@ GearSetup(){
 
         While (currentHoyKey1 < currentNumforHotkey1){ ;khi mà số đồ hiện có của hotkey1 bé hơn hoặc bằng số lượng đặt được trong round đấy
             currentHoyKey1++ ;cộng 1 đồ đã được đặt
+            if (!x13able){
+                MoveBackward
+                currentX := x10
+                currentY := y10
+                x13able := true
+            }
             SendEvent "1"
             ShortWaitingTime
             SendEvent HotKey1 ; chỉnh sang đồ thứ 1
@@ -347,10 +355,18 @@ GearSetup(){
                 MoveBackward
                 currentX := x10
                 currentY := y10
-            }
+            }else if (currentX == x13 and round <4){ ;khi còn round sau mà đã đặt đồ vào vị trí thứ 4
+                x13able := false
+            }  
         }
         While (currentHotKey2 < currentNumforHotkey2){ ;khi mà số đồ hiện có của hotkey2 bé hơn hoặc bằng số lượng đặt được trong round đấy
             currentHotKey2++ ;cộng 1 đồ đã được đặt
+            if (!x13able){
+                MoveBackward
+                currentX := x10
+                currentY := y10
+                x13able := true
+            }
             SendEvent "1"
             ShortWaitingTime
             SendEvent HotKey2 ; chỉnh sang đồ thứ 2
@@ -371,13 +387,21 @@ GearSetup(){
                 currentX := x13
                 currentY := y13
             }else if currentX == x13 and (currentHotKey2 < currentNumforHotkey2 || currentHotKey3 < currentNumforHotkey3){
-            MoveBackward
-            currentX := x10
-            currentY := y10
-            }
+                MoveBackward
+                currentX := x10
+                currentY := y10
+            }else if (currentX == x13 and round <4){ ;khi còn round sau mà đã đặt đồ vào vị trí thứ 4
+                x13able := false
+            }  
         }
         While (currentHotKey3 < currentNumforHotkey3){ ;khi mà số đồ hiện có của hotkey2 bé hơn hoặc bằng số lượng đặt được trong round đấy
             currentHotKey3++ ;cộng 1 đồ đã được đặt
+            if (!x13able){
+                MoveBackward
+                currentX := x10
+                currentY := y10
+                x13able := true
+            }
             SendEvent "1"
             ShortWaitingTime
             SendEvent HotKey3 ; chỉnh sang đồ thứ 2
@@ -398,10 +422,12 @@ GearSetup(){
                 currentX := x13
                 currentY := y13
             }else if (currentX == x13 and currentHotKey3 < currentNumforHotkey3){
-            MoveBackward
-            currentX := x10
-            currentY := y10
-            }
+                MoveBackward
+                currentX := x10
+                currentY := y10
+            }else if (currentX == x13 and round <4){ ;khi còn round sau mà đã đặt đồ vào vị trí thứ 4
+                x13able := false
+            }   
         }
         round++
     }
@@ -426,6 +452,8 @@ globalDeath := 0
 main(){
     global globalStopFlag := false
     global globalAutoReady
+    global Hotkey4
+    global NumforHotkey4
     runRoblox
     if (GetKeyState("PgUp", "P")) {
         globalStopFlag := true
@@ -508,7 +536,7 @@ main(){
             color := PixelGetColor(xpos, ypos)
             count++
             ShortWaitingTime
-            if (count > 100)
+            if (count > 10000)
                 ErrorMissTime  ;
             if (color == c3) 
             {
@@ -661,6 +689,53 @@ main(){
         SendEvent("{w down}")
         PlacementWalkTime    
         SendEvent("{w up}")
+        ShortWaitingTime
+
+        ; ĐẶT FLAME TURRET
+        if (NumforHotkey4 >0){
+            SendEvent("{d down}") 
+            CenterTime
+            ShortWaitingTime  
+            SendEvent("{d up}")
+            currentHoyKey4 := 0
+            currentX := x10
+            currentY := y10
+            While (currentHoyKey4 < NumforHotkey4){ ;khi mà số đồ hiện có của hotkey1 bé hơn hoặc bằng số lượng đặt được trong round đấy
+                currentHoyKey4++ ;cộng 1 đồ đã được đặt
+                SendEvent "1"
+                ShortWaitingTime
+                SendEvent HotKey4 ; chỉnh sang đồ thứ 4
+                MouseMove currentX, currentY ;chỉnh chuột đến vị trí có thể đặt đồ
+                NormalWaitingTime
+                SetTimer(CloseMsgBox, 500) 
+                MsgBox("Đang đặt ... " currentHoyKey4 " cho " HotKey4, "Thông báo")
+                SendEvent "{Lbutton}" ;đặt đồ
+                NormalWaitingTime
+                NormalWaitingTime
+                SendEvent "b"
+                if (currentX == x10){ ;nếu đang đặt cho vị trí 1 thì chuyển sang vị trí 2
+                    currentX := x11
+                    currentY := y11
+                }else if (currentX == x11){ ;nếu đang đặt cho vị trí 2 thì chuyển sang vị trí 3
+                    currentX := x12
+                    currentY := y12
+                }else if (currentX == x12){ ;nếu đang đặt cho vị trí 3 thì chuyển sang vị trí 4
+                    currentX := x13
+                    currentY := y13
+                }else if (currentX == x13){
+                    MoveBackward
+                    currentX := x10
+                    currentY := y10
+                }
+            }
+
+            SendEvent("{a down}") 
+            CenterTime
+            ShortWaitingTime  
+            SendEvent("{a up}")
+            ShortWaitingTime
+        }
+
 
 
         global rechargeWait :=false
@@ -693,69 +768,171 @@ main(){
 
 
 ;Main Graphical User Interface
-mainGUI := Gui(, 'Home')
-; mainGUI.Show("AutoSize Center") ;'w450 h350'
-mainGUI.SetFont('s12','Segoe UI')
-mainGUI.Add("Text", "", "Enter the number of loops you want").Move(10, 10)
-textInput := mainGUI.Add('Edit', 'w400 h50' ,'')
+global Totalhotkey1
+global Totalhotkey2
+global Totalhotkey3
+global Totalhotkey4
+global Totalhotkey5 
 
 
-mainGUI.Add("Text", "", "Hotkey").Move(10, 90)    ; Dòng chữ cho cột 1
-mainGUI.Add("Text", "", "Round 2").Move(110, 90)   ; Dòng chữ cho cột 2
-mainGUI.Add("Text", "", "Round 3").Move(210, 90)   ; Dòng chữ cho cột 3
-mainGUI.Add("Text", "", "Round 4").Move(310, 90)   ; Dòng chữ cho cột 4
+	mainGUI := Gui()
+    mainGUI.Opt("+AlwaysOnTop")
+	mainGUI.SetFont("s14", "Segoe UI")
+	mainGUI.SetFont("s30 cBlack")
+	startButton := mainGUI.Add("Button", "x544 y16 w64 h49", "▸")
+    mainGUI.Title := "MACRO THE FINAL STAND 2"
 
-input1 := mainGUI.Add("Edit", "w90 h50", "")
-input2 := mainGUI.Add("Edit", "w90 h50", "")
-input3 := mainGUI.Add("Edit", "w90 h50", "")
-input4 := mainGUI.Add("Edit", "w90 h50", "")
-input5 := mainGUI.Add("Edit", "w90 h50", "")
-input6 := mainGUI.Add("Edit", "w90 h50", "")
-input7 := mainGUI.Add("Edit", "w90 h50", "")
-input8 := mainGUI.Add("Edit", "w90 h50", "")
-input9 := mainGUI.Add("Edit", "w90 h50", "")
-input10 := mainGUI.Add("Edit", "w90 h50", "")
-input11 := mainGUI.Add("Edit", "w90 h50", "")
-input12 := mainGUI.Add("Edit", "w90 h50", "")
 
-input1.Move(10, 120) 
-input2.Move(110, 120) 
-input3.Move(210, 120) 
-input4.Move(310, 120) 
-input5.Move(10, 180)  
-input6.Move(110, 180) 
-input7.Move(210, 180) 
-input8.Move(310, 180) 
-input9.Move(10, 240) 
-input10.Move(110, 240) 
-input11.Move(210, 240)
-input12.Move(310, 240)
+    ; nhập thông tin số lần loop
+	mainGUI.SetFont("s14", "Segoe UI")
+	mainGUI.Add("Text", "x16 y16 w309 h34 +0x200 -Background", "Enter the number of loops you want:")
+	MyText := mainGUI.Add("Text", "x400 y16 w137 h33 +0x200", "Estimated time")
+	textInput := mainGUI.Add("ComboBox", "x328 y16 w62", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"])
+	
+    ;phần chữ
+	mainGUI.Add("Text", "x16 y72 w120 h23 +0x200", "Gear Setting")
+	mainGUI.Add("Text", "x16 y112 w112 h23 +0x200", "Hotkey")
+	mainGUI.Add("Text", "x160 y112 w112 h23 +0x200", "Round 2")
+	mainGUI.Add("Text", "x304 y112 w112 h23 +0x200", "Round 3")
+	mainGUI.Add("Text", "x448 y112 w113 h23 +0x200", "Round 4")
 
-startButton := mainGUI.AddButton('w200 h30', 'Run (powered by Vezyl)')
-startButton.Move(125, 300) ; Đặt nút ở giữa
-startButton.OnEvent('Click', onButtonClick)
-mainGUI.Show("AutoSize Center") ;'w450 h350'
+    ;simple macro
+    input1 := mainGUI.Add("ComboBox", "x16 y136 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input2 := mainGUI.Add("ComboBox", "x160 y136 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input3 := mainGUI.Add("ComboBox", "x304 y136 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input4 := mainGUI.Add("ComboBox", "x448 y136 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input5 := mainGUI.Add("ComboBox", "x16 y200 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input6 := mainGUI.Add("ComboBox", "x160 y200 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input7 := mainGUI.Add("ComboBox", "x304 y200 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input8 := mainGUI.Add("ComboBox", "x448 y200 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input9 := mainGUI.Add("ComboBox", "x16 y264 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input10 := mainGUI.Add("ComboBox", "x160 y264 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input11 := mainGUI.Add("ComboBox", "x304 y264 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input12 := mainGUI.Add("ComboBox", "x448 y264 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+
+    ;advanced macro
+	mainGUI.Add("Text", "x16 y336 w291 h25 +0x200", "Special Gear (Non-rechargeable)")
+	input13 := mainGUI.Add("ComboBox", "x16 y384 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input14 := mainGUI.Add("ComboBox", "x160 y384 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input15 := mainGUI.Add("ComboBox", "x16 y448 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	input16 := mainGUI.Add("ComboBox", "x160 y448 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
+	mainGUI.SetFont("s10")
+	mainGUI.Add("Text", "x304 y384 w257 h34", "Upper right corner (recommended: Flame turret). Round 2")
+	mainGUI.SetFont("s14", "Segoe UI")
+	mainGUI.SetFont("s10")
+	mainGUI.Add("Text", "x304 y448 w257 h34", "Bottom corner (recommended: Mortar). Round 17")
+	mainGUI.SetFont("s14", "Segoe UI")
+
+
+    ; thông tin total gear
+    
+	Totalhotkey1 := mainGUI.Add("Text", "x568 y136 w48 h33 +0x200", "0")
+	Totalhotkey2 := mainGUI.Add("Text", "x568 y200 w48 h33 +0x200", "0")
+	Totalhotkey3 := mainGUI.Add("Text", "x568 y264 w48 h33 +0x200", "0")
+	Totalhotkey4 := mainGUI.Add("Text", "x568 y384 w48 h33 +0x200", "0")
+	Totalhotkey5 := mainGUI.Add("Text", "x568 y448 w48 h33 +0x200", "0")
+
+
+    ;lệnh điều khiển và chuyển trạng thái
+	startButton.OnEvent("Click", onButtonClick)
+	textInput.OnEvent("Change", OnEventHandler)
+	input1.OnEvent("Change", OnEventHandler)
+	input2.OnEvent("Change", OnEventHandler)
+	input3.OnEvent("Change", OnEventHandler)
+	input4.OnEvent("Change", OnEventHandler)
+	input5.OnEvent("Change", OnEventHandler)
+	input6.OnEvent("Change", OnEventHandler)
+	input7.OnEvent("Change", OnEventHandler)
+	input8.OnEvent("Change", OnEventHandler)
+	input9.OnEvent("Change", OnEventHandler)
+	input10.OnEvent("Change", OnEventHandler)
+	input11.OnEvent("Change", OnEventHandler)
+	input12.OnEvent("Change", OnEventHandler)
+	input13.OnEvent("Change", OnEventHandler)
+	input14.OnEvent("Change", OnEventHandler)
+	input15.OnEvent("Change", OnEventHandler)
+	input16.OnEvent("Change", OnEventHandler)
+	mainGUI.OnEvent('Close', (*) => ExitApp())
 isContinuePressed := false
 global roundcount
+
+OnEventHandler(*)
+{
+    global isContinuePressed  ; Sử dụng biến toàn cục
+    global userInput := textInput.Value
+    global HotKey1 := input1.Value
+    global NumforHotkey1round2 := input2.Value
+    global NumforHotkey1round3 := input3.Value
+    global NumforHotkey1round4 := input4.Value
+    global HotKey2 := input5.Value
+    global NumforHotkey2round2 := input6.Value
+    global NumforHotkey2round3 := input7.Value
+    global NumforHotkey2round4 := input8.Value
+    global HotKey3 := input9.Value
+    global NumforHotkey3round2 := input10.Value
+    global NumforHotkey3round3 := input11.Value
+    global NumforHotkey3round4 := input12.Value
+    global Hotkey4 := input13.Value
+    global NumforHotkey4 := input14.Value
+    global Hotkey5 := input15.Value
+    global NumforHotkey5 := input16.Value
+
+    global Totalhotkey1
+    global Totalhotkey2
+    global Totalhotkey3
+    global Totalhotkey4
+    global Totalhotkey5
+
+    Totalhotkey1.value := NumforHotkey1round2 + NumforHotkey1round3 + NumforHotkey1round4
+    Totalhotkey2.text := NumforHotkey2round2 + NumforHotkey2round3 + NumforHotkey2round4
+    Totalhotkey3.text := NumforHotkey3round2 + NumforHotkey3round3 + NumforHotkey3round4
+    Totalhotkey4.text := NumforHotkey4
+    Totalhotkey5.text := NumforHotkey5
+    ; MsgBox(" input2 " NumforHotkey1round2)
+    totalMinutes := userInput * 45
+    hours := totalMinutes // 60
+    minutes := Mod(totalMinutes, 60)
+    result := " " hours "h" minutes "m"
+    MyText.Text := (result)
+    ; ToolTip("Click! This is a sample action.`n"
+    ; . "Active GUI element values include:`n"
+    ; . "startButton => " startButton.Text "`n" 
+    ; . "textInput => " textInput.Text "`n" 
+    ; . "input1 => " input1.Text "`n" 
+    ; . "input2 => " input2.Text "`n" 
+    ; . "input3 => " input3.Text "`n" 
+    ; . "input4 => " input4.Text "`n" 
+    ; . "input5 => " input5.Text "`n" 
+    ; . "input6 => " input6.Text "`n" 
+    ; . "input7 => " input7.Text "`n" 
+    ; . "input8 => " input8.Text "`n" 
+    ; . "input9 => " input9.Text "`n" 
+    ; . "input10 => " input10.Text "`n" 
+    ; . "input11 => " input11.Text "`n" 
+    ; . "input12 => " input12.Text "`n" 
+    ; . "input13 => " input13.Text "`n" 
+    ; . "input14 => " input14.Text "`n" 
+    ; . "input15 => " input15.Text "`n" 
+    ; . "input16 => " input16.Text "`n", 77, 277)
+    ; SetTimer () => ToolTip(), -3000 ; tooltip timer
+}
+
 
 onButtonClick(*) {
     global isContinuePressed  ; Sử dụng biến toàn cục
     global userInput := textInput.Value
-    global HotKey1, NumforHotkey1round2, NumforHotkey1round3, NumforHotkey1round4
-    global HotKey2, NumforHotkey2round2, NumforHotkey2round3, NumforHotkey2round4
-    global HotKey3, NumforHotkey3round2, NumforHotkey3round3, NumforHotkey3round4
-    HotKey1 := input1.Value
-    NumforHotkey1round2 := input2.Value
-    NumforHotkey1round3 := input3.Value
-    NumforHotkey1round4 := input4.Value
-    HotKey2 := input5.Value
-    NumforHotkey2round2 := input6.Value
-    NumforHotkey2round3 := input7.Value
-    NumforHotkey2round4 := input8.Value
-    HotKey3 := input9.Value
-    NumforHotkey3round2 := input10.Value
-    NumforHotkey3round3 := input11.Value
-    NumforHotkey3round4 := input12.Value
+    global HotKey1 := input1.Value
+    global NumforHotkey1round2 := input2.Value
+    global NumforHotkey1round3 := input3.Value
+    global NumforHotkey1round4 := input4.Value
+    global HotKey2 := input5.Value
+    global NumforHotkey2round2 := input6.Value
+    global NumforHotkey2round3 := input7.Value
+    global NumforHotkey2round4 := input8.Value
+    global HotKey3 := input9.Value
+    global NumforHotkey3round2 := input10.Value
+    global NumforHotkey3round3 := input11.Value
+    global NumforHotkey3round4 := input12.Value
 
     if (userInput == '') {
     MsgBox('Mày đang đéo nhập gì cả', "Macro by Vezyl")
@@ -804,6 +981,8 @@ onButtonClick(*) {
     }
 }
 
+
+mainGUI.Show("w623 h514")
 if (!isContinuePressed) {
     return
 }

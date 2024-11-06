@@ -1,26 +1,32 @@
 #Requires AutoHotkey v2.0
-SendMode "InputThenPlay"
-; Tạo GUI
-mainGUI := Gui(, 'Home')
-mainGUI.SetFont("s10", "Segoe UI")
+SendMode "InputthenPlay"
 
-; Thêm vùng nhập số
-InputBox := mainGUI.Add("Edit", "vInputBox Number", "")
-InputBox.SetEvent("Change", OnInputChange)
+; Tạo GUI với một bố cục khác
+MyGui := Gui(, "My Custom GUI") ; Tên GUI
+MyGui.SetFont("s10", "Verdana") ; Đặt font khác và cỡ chữ nhỏ hơn
+MyGui.Show("w400 h150 Center")
 
-; Thêm một Text để hiển thị nội dung
-DisplayText := mainGUI.Add("Text", , "Dữ liệu nhập vào sẽ xuất hiện ở đây...")
+
+; Tạo các điều khiển với lệnh và cấu trúc khác
+userInput := MyGui.AddEdit("w350", "") ; Tạo một vùng nhập với chiều rộng 350
+MyText := MyGui.AddText("w350 Center", "Nhập vào để thay đổi nội dung" ) ; Văn bản căn giữa
+userInput2 := MyGui.AddEdit("w350", "") ; Tạo một vùng nhập với chiều rộng 350
+; Phát hiện nhấn phím Enter
+userInput.OnEvent('Change', TimeEdit)
 
 ; Hiển thị GUI
-mainGUI.Show()
+ ; Hiển thị và căn giữa cửa sổ
 
-; Hàm xử lý sự kiện khi nội dung của vùng nhập thay đổi
-OnInputChange(ctrl, info) {
-    ; Lấy dữ liệu từ InputBox
-    data := mainGUI.InputBox.Value
-    ; Hiển thị dữ liệu ở dòng Text
-    mainGUI.DisplayText.Text := data
+TimeEdit(*) {
+    if (userInput == '') {
+    MyText.text := "Error"
+    }else if !RegExMatch(userInput.Text, "^\d+$") {
+    MyText.Text := "Error"
+    }else {
+    totalMinutes := userInput.Text * 45
+    hours := totalMinutes // 60
+    minutes := Mod(totalMinutes, 60)
+    result := " " hours "h" minutes "m"
+    MyText.Text := ("Estimated time :" result)
+    }
 }
-MsgBox('Mày đang đéo nhập gì cả', "Macro by Vezyl")
-; Chạy chương trình
-return
