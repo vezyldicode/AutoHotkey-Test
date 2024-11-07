@@ -16,56 +16,78 @@ Convention
 Note when using for the first time
 1. sửa lại các vị trí x, y và màu pixel theo chú thích
 2. thay đổi đường dẫn roblox và file source (2 chương trình BẮT BUỘC phải chạy dưới quyền Admin, đã được tích hợp sẵn trong code)
-3. 
+3. có thể cần phải sửa lại 4 vị trí lấy mã màu đen khi chết
+4. sửa lại thời gian doorDis và centerDis
 
+
+Note each time use
+1. Nên chạy roblox ở chế độ fullscreen. Nếu không có thể xảy ra lỗi nhận sai cửa sổ trên màn hình
+2. Đảm bảo rằng KHÔNG có bất cứ ứng dụng hay chương trình nào đang ở chế độ always on top
+3. tắt hoàn toàn thông báo window, nếu không chương trình sẽ không thể nhận và bấm nút ready up
+4. tắt hoàn toàn Shift Lock và Toggle Sprint trong cài đặt Roblox và game
 */
-
-
 
 
 SendMode "InputThenPlay"
 
+; Edit it when first used
 
 ; chính giữa màn hình
 global xct := 960
 global yct := 540
 global cct
+
 ; chọn game pixel màu trắng
 global x1 := 250
 global y1 := 1006
 global c1 := 0xFFFFFF
+
 ; nút vào game màu xanh góc trên bên trái
 global x2 := 485
 global y2 := 246
 global c2 := 0x00B06F
+global c21 := 0x009F64
+
 ; bấm vào private game pixel màu trắng
 global x3 := 289
 global y3 := 679
 global c3 := 0xFFFFFF
+
 ; bấm vào career mode màu xanh dương
 global x4 := 1052
 global y4 := 533
 global c4 := 0x0B150D
+
 ; bấm vào tạo Private game
 global x5 := 427
 global y5 := 860
 global c5 := 0xFFFFFF
+
 ; bấm vào nút play trong trận
 global x6 := 948
 global y6 := 1033
 global c6 := 0xFFFFFF
+
 ; bấm nút Ready (dùng pixel màu trắng ở ngay chữ R - tránh bị trùng vào Kill)
 global x7 := 1790
 global y7 := 1000
 global c7 := 0xA6A6A6
+
 ; bấm nút sang phải 3 lần pixel màu trắng ở mũi tên
 global x8 := 1137
 global y8 := 992
 global c8 := 0xFFFFFF
+
 ; vị trí nhận tiền round đầu tiên pixel màu vàng
 global x9 := 1018
 global y9 := 659
 global c9 := 0xFFB400
+
+; thời gian di chuyển các chặng
+global doorDis := 2310
+global centerDis := 2440
+
+
 
 ; 4 vị trí đặt đồ
 global x10 := 934 ;864
@@ -77,108 +99,144 @@ global y12 := 819 ;819
 global x13 := 919 ; 1081
 global y13:= 821 ;671
 
-backwardtime := 0
-global rechargeWait
-SpecialGear1SetupDone := true
-getroundsSurvivedvalue := 0
-firsttimesetup := true
-global cDis := 0
 
-screenWidth := A_ScreenWidth
-screenHeight := A_ScreenHeight
+
+;YOU SHOULD ASK THE AUTHOR BEFORE EDITING THE FOLLOWING VARIABLES
+global backwardtime := 0 ; số lần di chuyển lùi về, mặc định ban đầu là 0
+global rechargeWait ;biến boolean quy định có đang đợi recharge hay không
+global SpecialGear1SetupDone := true ;biến boolean quy định đã hoàn thành xong setup special gear 1 (mặc định là true cho cả trường hợp không có special gear 1)
+global getroundsSurvivedvalue := 0 ;lấy số round đã sống sót được ở lần macro trước để hiển thị lên GUI (mặc định là 0 cho lần chạy đầu tiên)
+global firsttimesetup := true ;biến boolean quy định đây có phải lần đầu đặt special gear 1 hay không
+global cDis := 0 ;quy định khoảng cách từ vị trí xuất phát (nhà) đến chỗ setup (bắt đầu từ 0)
+global StopFlag := false ;quy định khi giá trị này bằng true thì chương trình bị buộc dừng bởi người dùng (mặc định là false)
+globalAutoReady := false ;biến boolean sau khi setup lần đầu tiên thì tự động ready cho đến khi thua (mặc định là false khi chưa thực hiện setup)
+globalDeath := 0 ;biến đếm số lần chết
+global recharging := false ;biến quy định khi nào là lúc đang thực hiện recharge (mặc định là false khi chưa thực hiện)
+
+; lấy vị trí chính giữa màn hình
+global xct := A_ScreenWidth /2
+global yct := A_ScreenHeight /2
+global cct
+; Tính toán vị trí cho GUI
 global gameGUIWidth := 405
 global gameGUIHeight := 147
-; Tính toán vị trí cho GUI
 xPos := A_ScreenWidth / 2  - gameGUIWidth / 2 ; X tại 1/8 chiều rộng màn hình
 yPos := A_ScreenHeight * (1/12) ; Y tại giữa màn hình
 
+
 runRoblox(){ ;run Roblox as Administrator
-    Run ("*RunAs " "C:\Users\pc\Desktop\Roblox-Player.lnk")
+    Run ("*RunAs " "C:\Users\pc\AppData\Local\Roblox\Versions\version-0c1a10704cb043cc\RobloxPlayerBeta.exe")
     LongWaitingTime
     WinActivate('Roblox')
     NormalWaitingTime
 }
 
 if !A_IsAdmin{ ; run as Administrator
-    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\Macroroblox.ahk")
+    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\CuoiDoiTuoiDepLamSao.ahk")
     ExitApp
 }
 
+
+/*
+Các hàm có ảnh hưởng đến thời gian hoặc vòng lặp đều mặc định có đoạn code dưới đây để nhận tín hiệu từ phím PgUp để buộc dừng chương trình
+        if (GetKeyState("PgUp", "P")) {
+                    stopFlag := true
+                    ErrorMissTime
+                    break
+                }
+*/
+
 ShortWaitingTime(){ ;anti-system overload
-    ; Sleep 200
-    global globalStopFlag
+    global StopFlag
 
     totalSleepDuration := 200
     sleepInterval := 50
     elapsed := 0
     While (elapsed < totalSleepDuration) {
         if (GetKeyState("PgUp", "P")) {
-            stopFlag := true  ; Set the flag if Page Up is pressed
+            stopFlag := true
             ErrorMissTime
-            break  ; Exit the sleep loop
+            break
         }
-        Sleep sleepInterval  ; Sleep for a short interval
-        elapsed += sleepInterval  ; Increment elapsed time
+        Sleep sleepInterval
+        elapsed += sleepInterval
     }
 }
 
 NormalWaitingTime(){ ;pause between actions
-    global globalStopFlag
+    global StopFlag
 
     totalSleepDuration := 1000
     sleepInterval := 50
     elapsed := 0
     While (elapsed < totalSleepDuration) {
         if (GetKeyState("PgUp", "P")) {
-            stopFlag := true  ; Set the flag if Page Up is pressed
+            stopFlag := true
             ErrorMissTime
-            break  ; Exit the sleep loop
+            break
         }
-        Sleep sleepInterval  ; Sleep for a short interval
-        elapsed += sleepInterval  ; Increment elapsed time
-    }
-}
-
-LongWaitingTime(){ ;wait for system response
-    global globalStopFlag
-
-    totalSleepDuration := 5000
-    sleepInterval := 50
-    elapsed := 0
-    While (elapsed < totalSleepDuration) {
-        if (GetKeyState("PgUp", "P")) {
-            stopFlag := true  ; Set the flag if Page Up is pressed
-            ErrorMissTime
-            break  ; Exit the sleep loop
-        }
-        Sleep sleepInterval  ; Sleep for a short interval
-        elapsed += sleepInterval  ; Increment elapsed time
-        ; Sleep (10000)
+        Sleep sleepInterval
+        elapsed += sleepInterval 
     }
 }
 
 AvgLongWaitingTime(){
-    global globalStopFlag
+    global StopFlag
 
     totalSleepDuration := 2500
     sleepInterval := 50
     elapsed := 0
     While (elapsed < totalSleepDuration) {
         if (GetKeyState("PgUp", "P")) {
-            stopFlag := true  ; Set the flag if Page Up is pressed
+            stopFlag := true
             ErrorMissTime
-            break  ; Exit the sleep loop
+            break
         }
-        Sleep sleepInterval  ; Sleep for a short interval
-        elapsed += sleepInterval  ; Increment elapsed time
+        Sleep sleepInterval
+        elapsed += sleepInterval
     }
 }
 
-;time to go from corner to door
-DoorTime(){ ;wait for system response
-    global globalStopFlag
+LongWaitingTime(){ ;wait for system response
+    global StopFlag
 
-    totalSleepDuration := 2310
+    totalSleepDuration := 5000
+    sleepInterval := 50
+    elapsed := 0
+    While (elapsed < totalSleepDuration) {
+        if (GetKeyState("PgUp", "P")) {
+            stopFlag := true
+            ErrorMissTime
+            break
+        }
+        Sleep sleepInterval
+        elapsed += sleepInterval
+    }
+}
+
+
+DoorTime(){ ;time to go from corner to door (default 2310ms)
+    global StopFlag
+
+    totalSleepDuration := doorDis
+    sleepInterval := 50
+    elapsed := 0
+    While (elapsed < totalSleepDuration) {
+        if (GetKeyState("PgUp", "P")) {
+            stopFlag := true
+            ErrorMissTime
+            break
+        }
+        Sleep sleepInterval
+        elapsed += sleepInterval
+    }
+}
+
+
+CenterTime(){ ;time to go from door to center (default 2440ms)
+    global StopFlag
+
+    totalSleepDuration := centerDis
     sleepInterval := 50
     elapsed := 0
     While (elapsed < totalSleepDuration) {
@@ -192,27 +250,9 @@ DoorTime(){ ;wait for system response
     }
 }
 
-;time to go from door to center
-CenterTime(){ ;wait for system response
-    global globalStopFlag
 
-    totalSleepDuration := 2440
-    sleepInterval := 50
-    elapsed := 0
-    While (elapsed < totalSleepDuration) {
-        if (GetKeyState("PgUp", "P")) {
-            stopFlag := true  ; Set the flag if Page Up is pressed
-            ErrorMissTime
-            break  ; Exit the sleep loop
-        }
-        Sleep sleepInterval  ; Sleep for a short interval
-        elapsed += sleepInterval  ; Increment elapsed time
-    }
-}
-
-;time to go from center to Placement position
-PlacementWalkTime(){ ;wait for system response
-    ; global globalStopFlag
+PlacementWalkTime(){ ;time to go from center to Placement position (default 30cDis)
+    ; global StopFlag
 
     ; totalSleepDuration := 41540
     ; sleepInterval := 50
@@ -232,37 +272,33 @@ PlacementWalkTime(){ ;wait for system response
 }
 
 
-CloseMsgBox() { ;close dialog box automatically
-    WinClose("ahk_class #32770")
-    SetTimer(CloseMsgBox, 0)
-}
-
-ErrorMissTime() { ;error report, close Program
-    MouseGetPos &xpos, &ypos 
-    color := PixelGetColor(xpos, ypos)
-    if (globalStopFlag == true){
-        MsgBox("Stop by User", "Time ran out")
-    } else MsgBox("unexpected color, the color code collected is: " color, "Time ran out")
-    ExitApp
-}
-; recharge đang lỗi, tức là khi ready rồi, xong mới gọi hàm gearsetup lên, và khi đó bị kẹt trong vòng lặp vì không bấm thêm được ready nữa
 
 ReadyUp(){ ;wait for the ready button and press (function has a waiting time of about 1 round)
+    /*
+    Hàm điều phối và thực hiện lệnh bấm ready khi round mới
+    Mặc định di chuyển chuột đến vị trí x7, y7 sau mỗi 1s, lấy mẫu màu ở vị trí đó
+    báo lỗi sau 10000 lần lấy mẫu
+    tự động ready nếu không có thêm luồng phụ (recharge hoặc special gear recharge)
+    Lấy 4 vị trí trên màn hình, kiểm tra nếu cả 4 màu đều là màu đen thì được tính là 1 lần chết, countdown 10s để tránh bị đếm lặp. Nếu phát hiện chết thì đóng vòng lặp
+    Các lệnh if trong vòng lặp nên được thực hiện song song, không phải else if để đảm bảo thực hiện đủ quá trình
+    Hàm Ready được gọi lên chính là điều kiện để check khi nào sang round mới để thực hiện chuyển round
+    */
     global rechargeWait
-    global globalStopFlag 
+    global StopFlag 
     global globalDeath
     global globalAutoReady
     global roundcount
     global SpecialGear1SetupDone
     global getroundsSurvivedvalue
     if (GetKeyState("PgUp", "P")) {
-        globalStopFlag := true
+        StopFlag := true
+        ErrorMissTime
     }
     NormalWaitingTime
     count := 0
-    While (!globalStopFlag) {
+    While (!StopFlag) {
         if (GetKeyState("PgUp", "P")) {
-            globalStopFlag := true
+            StopFlag := true
             ErrorMissTime
             break
         }
@@ -275,7 +311,7 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
             ErrorMissTime
         if (globalDeath >0)
             break
-        if (color == c7) 
+        if (color == c7) ;
         {
             if (roundcount == 16 and SpecialGear1SetupDone == false){ ;setup sau round chỉ định 1 round
                 Loop backwardtime {
@@ -288,14 +324,15 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
                 SpecialGear1SetupDone := true
                 MouseMove x7, y7
             }
-            SetTimer(CloseMsgBox, 500) 
-            MsgBox("bấm ready", "Thông báo")
-            ShortWaitingTime
-            ShortWaitingTime
-            Click
+            
+            while (color == c7){
+                SetTimer(CloseMsgBox, 500) 
+                MsgBox("bấm ready", "Thông báo")
+                Click
+                ShortWaitingTime
+                color := PixelGetColor(xpos, ypos)
+            }
             roundcount++
-            SetTimer(CloseMsgBox, 1000)
-            MsgBox("Hien tai dang round " roundcount, "Thông báo")
             if (!globalAutoReady || recharging)
             break
             else count := 0
@@ -327,14 +364,19 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
     }
 }
 
-global recharging := false
+
 GearSetup(){
+    /*
+    Tổ hợp lệnh phức tạp để điều khiển quá trình setup đồ
+    Mặc định sẽ là 4 đồ trên mỗi cDis
+    3 gear cơ bản sẽ được setup ở đây
+    */
     x13able := true
     global globalDeath
     global recharging
     global rechargeWait
     round := 2
-    currentHoyKey1 := 0
+    currentHotKey1 := 0
     currentHotKey2 := 0
     currentHotKey3 := 0
     currentX := x10
@@ -343,7 +385,7 @@ GearSetup(){
         LongWaitingTime
 
         SendEvent "1"
-        currentHoyKey1 := 0
+        currentHotKey1 := 0
         currentHotKey2 := 0
         currentHotKey3 := 0
 
@@ -374,8 +416,8 @@ GearSetup(){
             rechargeWait := true
         }
 
-        While (currentHoyKey1 < currentNumforHotkey1){ ;khi mà số đồ hiện có của hotkey1 bé hơn hoặc bằng số lượng đặt được trong round đấy
-            currentHoyKey1++ ;cộng 1 đồ đã được đặt
+        While (currentHotKey1 < currentNumforHotkey1){ ;khi mà số đồ hiện có của hotkey1 bé hơn hoặc bằng số lượng đặt được trong round đấy
+            currentHotKey1++ ;cộng 1 đồ đã được đặt
             if (!x13able){
                 MoveBackward
                 currentX := x10
@@ -388,7 +430,7 @@ GearSetup(){
             MouseMove currentX, currentY ;chỉnh chuột đến vị trí có thể đặt đồ
             NormalWaitingTime
             SetTimer(CloseMsgBox, 500) 
-            MsgBox("Đang đặt ... " currentHoyKey1 " cho " HotKey1, "Thông báo")
+            MsgBox("Đang đặt ... " currentHotKey1 " cho " HotKey1, "Thông báo")
             SendEvent "{Lbutton}" ;đặt đồ
             NormalWaitingTime
             NormalWaitingTime
@@ -401,7 +443,7 @@ GearSetup(){
             }else if (currentX == x12){ ;nếu đang đặt cho vị trí 3 thì chuyển sang vị trí 4
                 currentX := x13
                 currentY := y13
-            }else if currentX == x13 and (currentHotKey2 < currentNumforHotkey2 || currentHoyKey1 < currentNumforHotkey1 || currentHotKey3 < currentNumforHotkey3){
+            }else if currentX == x13 and (currentHotKey2 < currentNumforHotkey2 || currentHotKey1 < currentNumforHotkey1 || currentHotKey3 < currentNumforHotkey3){
                 MoveBackward
                 currentX := x10
                 currentY := y10
@@ -483,10 +525,67 @@ GearSetup(){
     }
 }
 
+SpecialGear1Setup(){ ;đặt special gear 1 cách sang bên phải 2460ms
+    ; ĐẶT FLAME TURRET
+    global firsttimesetup
+    if (NumforHotkey4 >0 and HotKey4 != 0){
+        global NumforHotkey4
+        global HotKey4
+        SendEvent("{d down}") 
+        CenterTime
+        ShortWaitingTime  
+        SendEvent("{d up}")
+        currentHotKey4 := 0
+        currentX := x10
+        currentY := y10
+        
+        While (currentHotKey4 < NumforHotkey4){ ;khi mà số đồ hiện có của hotkey4 bé hơn hoặc bằng số lượng đặt được trong round đấy
+            currentHotKey4++ ;cộng 1 đồ đã được đặt
+            SendEvent "1"
+            ShortWaitingTime
+            SendEvent HotKey4 ; chỉnh sang đồ thứ 4
+            MouseMove currentX, currentY ;chỉnh chuột đến vị trí có thể đặt đồ
+            NormalWaitingTime
+            SetTimer(CloseMsgBox, 500) 
+            MsgBox("Đang đặt ... " currentHotKey4 " cho " HotKey4, "Thông báo")
+            if (firsttimesetup){
+                SendEvent "{Lbutton}" ;đặt đồ
+                NormalWaitingTime
+                NormalWaitingTime
+                SendEvent "b"
+                firsttimesetup := false
+            }else{
+                SendEvent "{Lbutton}" ;đặt đồ
+                ShortWaitingTime
+                ShortWaitingTime
+                SendEvent "{Lbutton}"
+            }
+            if (currentX == x10){ ;nếu đang đặt cho vị trí 1 thì chuyển sang vị trí 2
+                currentX := x11
+                currentY := y11
+            }else if (currentX == x11){ ;nếu đang đặt cho vị trí 2 thì chuyển sang vị trí 3
+                currentX := x12
+                currentY := y12
+            }else if (currentX == x12){ ;nếu đang đặt cho vị trí 3 thì chuyển sang vị trí 4
+                currentX := x13
+                currentY := y13
+            }else if (currentX == x13){
+                MoveBackward
+                currentX := x10
+                currentY := y10
+            }
+        }
+
+        SendEvent("{a down}") 
+        CenterTime
+        ShortWaitingTime  
+        SendEvent("{a up}")
+        ShortWaitingTime
+    }
+}
 
 
-
-MoveBackward(){
+MoveBackward(){ ; di chuyển xuống 1 cDis
     global backwardtime
     backwardtime++
     global cDis
@@ -498,7 +597,8 @@ MoveBackward(){
     SendEvent("{s up}")
 }
 
-MoveForward(){
+
+MoveForward(){ ;di chuyển lên 1 cDis
     global cDis
     cDis++
     SendEvent("{w down}")
@@ -507,76 +607,14 @@ MoveForward(){
     ShortWaitingTime
     SendEvent("{w up}")
 }
-SpecialGear1Setup(){
-        ; ĐẶT FLAME TURRET
-        global firsttimesetup
-        if (NumforHotkey4 >0 and HotKey4 != 0){
-            global NumforHotkey4
-            global HotKey4
-            SendEvent("{d down}") 
-            CenterTime
-            ShortWaitingTime  
-            SendEvent("{d up}")
-            currentHoyKey4 := 0
-            currentX := x10
-            currentY := y10
-            
-            While (currentHoyKey4 < NumforHotkey4){ ;khi mà số đồ hiện có của hotkey4 bé hơn hoặc bằng số lượng đặt được trong round đấy
-                currentHoyKey4++ ;cộng 1 đồ đã được đặt
-                SendEvent "1"
-                ShortWaitingTime
-                SendEvent HotKey4 ; chỉnh sang đồ thứ 4
-                MouseMove currentX, currentY ;chỉnh chuột đến vị trí có thể đặt đồ
-                NormalWaitingTime
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("Đang đặt ... " currentHoyKey4 " cho " HotKey4, "Thông báo")
-                if (firsttimesetup){
-                    SendEvent "{Lbutton}" ;đặt đồ
-                    NormalWaitingTime
-                    NormalWaitingTime
-                    SendEvent "b"
-                    firsttimesetup := false
-                }else{
-                    SendEvent "{Lbutton}" ;đặt đồ
-                    ShortWaitingTime
-                    ShortWaitingTime
-                    SendEvent "{Lbutton}"
-                }
-                if (currentX == x10){ ;nếu đang đặt cho vị trí 1 thì chuyển sang vị trí 2
-                    currentX := x11
-                    currentY := y11
-                }else if (currentX == x11){ ;nếu đang đặt cho vị trí 2 thì chuyển sang vị trí 3
-                    currentX := x12
-                    currentY := y12
-                }else if (currentX == x12){ ;nếu đang đặt cho vị trí 3 thì chuyển sang vị trí 4
-                    currentX := x13
-                    currentY := y13
-                }else if (currentX == x13){
-                    MoveBackward
-                    currentX := x10
-                    currentY := y10
-                }
-            }
-
-            SendEvent("{a down}") 
-            CenterTime
-            ShortWaitingTime  
-            SendEvent("{a up}")
-            ShortWaitingTime
-        }
-}
-
-globalStopFlag := false
-globalAutoReady := false
-globalDeath := 0
 
 
 main(){
-    global globalStopFlag := false
+    global StopFlag := false
     global globalAutoReady
     global Hotkey4
     global NumforHotkey4
-    global loopCount := userInput
+    global loopCount := userInput ;generate loop number according to user data
     global loopCurrent := 0
     global roundcount := 0
     global SpecialGear1SetupDone
@@ -585,15 +623,15 @@ main(){
     GUIingame()
     runRoblox
     if (GetKeyState("PgUp", "P")) {
-        globalStopFlag := true
+        StopFlag := true
         ErrorMissTime
     }
 
     ;hover to most recent game location
     count := 0
-    While (!globalStopFlag) {
+    While (!StopFlag) {
         if (GetKeyState("PgUp", "P")) {
-            globalStopFlag := true
+            StopFlag := true
             ErrorMissTime
             break
         }
@@ -613,30 +651,32 @@ main(){
         }
     }
 
-    ;generate loop number according to user data
     
     Loop loopCount { ;macro loop execution
         loopCurrent := A_Index
+        cDis := 0
+        count := 0
+        global roundcount := 0
         if (GetKeyState("PgUp", "P")) {
-            globalStopFlag := true
+            StopFlag := true
             ErrorMissTime
             break
         }
-        if (NumforHotkey4 >0 and HotKey4 != 0){
+        if (NumforHotkey4 >0 and HotKey4 != 0){ ;nếu không có special gear 1 coi như setup xong
             SpecialGear1SetupDone := false
         }else SpecialGear1SetupDone := true
+        
         global globalDeath := 0
         global globalAutoReady := false
+        firsttimesetup := true
 
-        ;0x00B06F
-        ; bấm vào game
-        count := 0
-        global roundcount := 0
-        While (!globalStopFlag) { ;confirm and click to join game
+
+        While (!StopFlag) { ;confirm and click to join game
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             }
+            NormalWaitingTime
             MouseMove xct, yct
             NormalWaitingTime
             MouseMove x2, y2
@@ -646,21 +686,23 @@ main(){
             ShortWaitingTime
             if (count > 300) 
                 ErrorMissTime
-            if (color == c2) {
+            if (color == c2 || color == c21) {
+                while (color == c2 || color == c21){
                 SetTimer(CloseMsgBox, 500) 
                 MsgBox("bấm play", "Thông báo")
                 Click 
+                ShortWaitingTime
+                color := PixelGetColor(xpos, ypos)
+                }
                 break
             }
         }
 
 
-        ;0x2C2826
-        ; địt mẹ mày vào private
         count := 0
-        While (!globalStopFlag) { ;confirm and click on private game tab
+        While (!StopFlag) { ;confirm and click on private game tab
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             }
             MouseMove x3, y3
@@ -680,11 +722,10 @@ main(){
         }
 
 
-        ; vào career
         count := 0
-        While (!globalStopFlag) { ;confirm and click on career mode tab
+        While (!StopFlag) { ;confirm and click on career mode tab
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             } 
             MouseMove x4, y4
@@ -700,15 +741,15 @@ main(){
                 MsgBox("VÀO CAREER", "Thông báo")
                 Click 
                 break
-            }}
-        ; sleep 5000
+            }
+        }
 
 
-        ; bấm VÀO tạo private game
+
         count := 0
-        While (!globalStopFlag) { ;confirm and click create private game
+        While (!StopFlag) { ;confirm and click create private game
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             } 
             MouseMove x5, y5
@@ -728,11 +769,10 @@ main(){
         }
 
 
-        ; bấm vào nút play
         count := 0
-        While (!globalStopFlag) { ;comfirm and click play
+        While (!StopFlag) { ;comfirm and click play
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             } ;comfirm and click play
             MouseMove x6, y6
@@ -754,11 +794,10 @@ main(){
         ReadyUp
 
 
-        ; bấm đổi góc nhìn
         count := 0
-        While (!globalStopFlag) { ;comfirm and click change character perspective
+        While (!StopFlag) { ;comfirm and click change character perspective
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             }
             MouseMove x8, y8
@@ -785,9 +824,9 @@ main(){
         
         ; khóa vị trí
         count := 0
-        While (!globalStopFlag) { ;move character out of shop
+        While (!StopFlag) { ;move character out of shop
             if (GetKeyState("PgUp", "P")) {
-                globalStopFlag := true
+                StopFlag := true
                 break
             } 
             MouseMove x9, y9
@@ -844,7 +883,7 @@ main(){
             loopCurrent++
         }
 
-        ; loop count notification
+        ;loop count notification
         loopCurrent := A_Index
         LoopRemaining := loopCount - loopCurrent
         SetTimer(CloseMsgBox, 1000)
@@ -881,9 +920,9 @@ textInput := mainGUI.Add("ComboBox", "x328 y16 w62", ["1", "2", "3", "4", "5", "
 ;phần chữ
 mainGUI.Add("Text", "x16 y72 w120 h23 +0x200", "Gear Setting")
 mainGUI.Add("Text", "x16 y112 w112 h23 +0x200", "Hotkey")
-mainGUI.Add("Text", "x160 y112 w112 h23 +0x200", "Round 2")
-mainGUI.Add("Text", "x304 y112 w112 h23 +0x200", "Round 3")
-mainGUI.Add("Text", "x448 y112 w113 h23 +0x200", "Round 4")
+mainGUI.Add("Text", "x160 y112 w112 h23 +0x200", "Round 2, 18, 21")
+mainGUI.Add("Text", "x304 y112 w112 h23 +0x200", "Round 3, 19, 22")
+mainGUI.Add("Text", "x448 y112 w113 h23 +0x200", "Round 4, 20, 23")
 
 ;simple macro
 input1 := mainGUI.Add("ComboBox", "x16 y136 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
@@ -900,13 +939,13 @@ input11 := mainGUI.Add("ComboBox", "x304 y264 w112", ["1", "2", "3", "4", "5", "
 input12 := mainGUI.Add("ComboBox", "x448 y264 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
 
 ;advanced macro
-mainGUI.Add("Text", "x16 y336 w291 h25 +0x200", "Special Gear (Non-rechargeable)")
+mainGUI.Add("Text", "x16 y336 w291 h25 +0x200", "Special Gear ")
 input13 := mainGUI.Add("ComboBox", "x16 y384 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
 input14 := mainGUI.Add("ComboBox", "x160 y384 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
 input15 := mainGUI.Add("ComboBox", "x16 y448 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
 input16 := mainGUI.Add("ComboBox", "x160 y448 w112", ["1", "2", "3", "4", "5", "6", "7", "8"])
 mainGUI.SetFont("s10")
-mainGUI.Add("Text", "x304 y384 w257 h34", "Upper right corner (recommended: Flame turret). Round 2")
+mainGUI.Add("Text", "x304 y384 w257 h34", "Upper right corner (recommended: Flame turret). Round 2, 17")
 mainGUI.SetFont("s14", "Segoe UI")
 mainGUI.SetFont("s10")
 mainGUI.Add("Text", "x304 y448 w257 h34", "Bottom corner (recommended: Mortar). Round 17")
@@ -1143,4 +1182,19 @@ Constructor(){
     
     gameGUI.Show
     return gameGUI
+}
+
+
+CloseMsgBox() { ;close dialog box automatically
+    WinClose("ahk_class #32770")
+    SetTimer(CloseMsgBox, 0)
+}
+
+ErrorMissTime() { ;error report, close Program
+    MouseGetPos &xpos, &ypos 
+    color := PixelGetColor(xpos, ypos)
+    if (StopFlag == true){
+        MsgBox("Stop by User", "Time ran out")
+    } else MsgBox("unexpected color, the color code collected is: " color, "Time ran out")
+    ExitApp
 }
