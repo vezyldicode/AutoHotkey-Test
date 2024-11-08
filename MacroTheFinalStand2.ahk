@@ -54,9 +54,10 @@ global y3 := 679
 global c3 := 0xFFFFFF
 
 ; bấm vào career mode màu xanh dương
-global x4 := 1052
-global y4 := 533
-global c4 := 0x0B150D
+global x4 := 1034
+global y4 := 449
+global c4 := 0x00A5FF
+global c41 := 0x00527F
 
 ; bấm vào tạo Private game
 global x5 := 427
@@ -99,7 +100,15 @@ global y12 := 819 ;819
 global x13 := 919 ; 1081
 global y13:= 821 ;671
 
-
+; 4 vị trí màu đen báo hiệu khi thua
+global x14 := 500
+global y14 := 200
+global x15 := 1500
+global y15 := 200
+global x16 := 500
+global y16 := 900
+global x17 := 1500
+global y17 := 900
 
 ;YOU SHOULD ASK THE AUTHOR BEFORE EDITING THE FOLLOWING VARIABLES
 global backwardtime := 0 ; số lần di chuyển lùi về, mặc định ban đầu là 0
@@ -120,9 +129,23 @@ global cct
 ; Tính toán vị trí cho GUI
 global gameGUIWidth := 405
 global gameGUIHeight := 147
-xPos := A_ScreenWidth / 2  - gameGUIWidth / 2 ; X tại 1/8 chiều rộng màn hình
-yPos := A_ScreenHeight * (1/12) ; Y tại giữa màn hình
+screenWidth := A_ScreenWidth
+screenHeight := A_ScreenHeight
+dpi := GetDpiScale()
+ScaleFactor := Dpi / 96.0
 
+xPos := ((screenWidth - gameGUIWidth * dpi) / 2)/dpi ; X tại giữa màn hình
+yPos := screenHeight / 12 ; Y tại 1/12 chiều rộng màn hình
+
+GetDpiScale() {
+    ; Retrieve the DPI of the main screen
+    hdc := DllCall("GetDC", "ptr", 0)
+    dpi := DllCall("GetDeviceCaps", "ptr", hdc, "int", 88, "int") ; LOGPIXELSX
+    DllCall("ReleaseDC", "ptr", 0, "ptr", hdc)
+    
+    ; Calculate the scaling factor based on DPI (96 is the default DPI)
+    return dpi / 96
+}
 
 runRoblox(){ ;run Roblox as Administrator
     Run ("*RunAs " "C:\Users\pc\AppData\Local\Roblox\Versions\version-0c1a10704cb043cc\RobloxPlayerBeta.exe")
@@ -132,9 +155,11 @@ runRoblox(){ ;run Roblox as Administrator
 }
 
 if !A_IsAdmin{ ; run as Administrator
-    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\Macroroblox.ahk")
+    Run( "*RunAs " "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe" " " "G:\AutoHotkey-Data\MacroTheFinalStand2.ahk")
     ExitApp
 }
+
+
 
 
 /*
@@ -314,12 +339,23 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
         if (color == c7) ;
         {
             if (roundcount == 16 and SpecialGear1SetupDone == false){ ;setup sau round chỉ định 1 round
-                Loop backwardtime {
+                ; Loop backwardtime {
+                ;     MoveForward
+                ; }
+                ; SpecialGear1Setup
+                ; Loop backwardtime {
+                ;     MoveBackward
+                ; }
+                currentDis := cDis
+                oldPos := cDis
+                While (currentDis < 30){
                     MoveForward
+                    currentDis := cDis
                 }
                 SpecialGear1Setup
-                Loop backwardtime {
+                While (currentDis > oldPos){
                     MoveBackward
+                    currentDis := cDis
                 }
                 SpecialGear1SetupDone := true
                 MouseMove x7, y7
@@ -337,7 +373,7 @@ ReadyUp(){ ;wait for the ready button and press (function has a waiting time of 
             break
             else count := 0
         }
-        if (PixelGetColor(500, 200) == 0x000000 and PixelGetColor(1500, 200) == 0x000000 and PixelGetColor(500, 900) == 0x000000 and PixelGetColor(1500, 900) == 0x000000)
+        if (PixelGetColor(x14, y14) == 0x000000 and PixelGetColor(x15, y15) == 0x000000 and PixelGetColor(x16, y16) == 0x000000 and PixelGetColor(x17, y17) == 0x000000)
             {globalDeath++
             roundcount--
             getroundsSurvivedvalue := roundcount
@@ -431,6 +467,7 @@ GearSetup(){
             NormalWaitingTime
             SetTimer(CloseMsgBox, 500) 
             MsgBox("Đang đặt ... " currentHotKey1 " cho " HotKey1, "Thông báo")
+            ShortWaitingTime
             SendEvent "{Lbutton}" ;đặt đồ
             NormalWaitingTime
             NormalWaitingTime
@@ -466,6 +503,7 @@ GearSetup(){
             NormalWaitingTime
             SetTimer(CloseMsgBox, 500) 
             MsgBox("Đang đặt ... " currentHotKey2 "cho " HotKey2, "Thông báo")
+            ShortWaitingTime
             SendEvent "{Lbutton}" ;đặt đồ
             NormalWaitingTime
             NormalWaitingTime
@@ -501,6 +539,7 @@ GearSetup(){
             NormalWaitingTime
             SetTimer(CloseMsgBox, 500) 
             MsgBox("Đang đặt ... " currentHotKey3 "cho " HotKey3, "Thông báo")
+            ShortWaitingTime
             SendEvent "{Lbutton}" ;đặt đồ
             NormalWaitingTime
             NormalWaitingTime
@@ -548,6 +587,7 @@ SpecialGear1Setup(){ ;đặt special gear 1 cách sang bên phải 2460ms
             NormalWaitingTime
             SetTimer(CloseMsgBox, 500) 
             MsgBox("Đang đặt ... " currentHotKey4 " cho " HotKey4, "Thông báo")
+            ShortWaitingTime
             if (firsttimesetup){
                 SendEvent "{Lbutton}" ;đặt đồ
                 NormalWaitingTime
@@ -556,8 +596,7 @@ SpecialGear1Setup(){ ;đặt special gear 1 cách sang bên phải 2460ms
                 firsttimesetup := false
             }else{
                 SendEvent "{Lbutton}" ;đặt đồ
-                ShortWaitingTime
-                ShortWaitingTime
+                NormalWaitingTime
                 SendEvent "{Lbutton}"
             }
             if (currentX == x10){ ;nếu đang đặt cho vị trí 1 thì chuyển sang vị trí 2
@@ -653,10 +692,7 @@ main(){
 
     
     Loop loopCount { ;macro loop execution
-        loopCurrent := A_Index
-        cDis := 0
-        count := 0
-        global roundcount := 0
+        
         if (GetKeyState("PgUp", "P")) {
             StopFlag := true
             ErrorMissTime
@@ -668,128 +704,173 @@ main(){
         
         global globalDeath := 0
         global globalAutoReady := false
-        firsttimesetup := true
+        global firsttimesetup := true
+        loopCurrent := A_Index
+        global cDis := 0
+        count := 0
+        global roundcount := 0
 
-
-        While (!StopFlag) { ;confirm and click to join game
-            if (GetKeyState("PgUp", "P")) {
-                StopFlag := true
-                break
-            }
-            NormalWaitingTime
-            MouseMove xct, yct
-            NormalWaitingTime
-            MouseMove x2, y2
-            MouseGetPos &xpos, &ypos 
-            color := PixelGetColor(xpos, ypos)
-            count++
-            ShortWaitingTime
-            if (count > 300) 
-                ErrorMissTime
-            if (color == c2 || color == c21) {
-                while (color == c2 || color == c21){
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("bấm play", "Thông báo")
-                Click 
-                ShortWaitingTime
-                color := PixelGetColor(xpos, ypos)
+        currentXYC := 2 ; biến xác định hiện tại chuột nên ở vị trí thứ mấy
+        While(!StopFlag and currentXYC <= 6){
+            count := 0
+            While(!StopFlag){
+                if (GetKeyState("PgUp", "P")) {
+                    StopFlag := true
+                    break
                 }
-                break
+                NormalWaitingTime
+                MouseMove xct, yct ; di chuyển chuột ra giữa màn hình
+                nextXYC := currentXYC +1
+                NormalWaitingTime
+                MouseMove x%currentXYC%, y%currentXYC% ; di chuyển chuột đến vị trí mong muốn
+                MouseGetPos &xpos, &ypos ;lấy vị trí chuột hiện tại
+                color := PixelGetColor(xpos, ypos) ; lấy mã màu hiện tại
+                nextcolor := PixelGetColor(x%nextXYC%, y%nextXYC%)
+                count++
+                ShortWaitingTime
+                if (count > 300) 
+                    ErrorMissTime
+                if (color == c4){
+                    Click
+                }
+                if (color == c%currentXYC% || color == c21) { ;nếu trùng màu rồi thì xét màu tiếp theo
+                    while(nextcolor != c%nextXYC% || nextcolor == c41){ ;khi mà màu đằng sau chưa xuất hiện thì bấm chuột
+                    ShortWaitingTime
+                    if (color == c%currentXYC% || color == c21){
+                    SetTimer(CloseMsgBox, 500) 
+                    MsgBox("Nhấm Chuột tại vị trí: x" currentXYC, "Macro By Vezyl")
+                    Click
+                    }
+                    NormalWaitingTime
+                    nextcolor := PixelGetColor(x%nextXYC%, y%nextXYC%)
+                    if (nextcolor == c%nextXYC% || nextcolor == c41) {
+                        break ; Thoát vòng lặp nếu nextcolor không thỏa mãn điều kiện
+                    }
+                    }
+                    break
+                }
             }
+            currentXYC++
         }
+        ; While (!StopFlag) { ;confirm and click to join game
+        ;     if (GetKeyState("PgUp", "P")) {
+        ;         StopFlag := true
+        ;         break
+        ;     }
+        ;     NormalWaitingTime
+        ;     MouseMove xct, yct
+        ;     NormalWaitingTime
+        ;     MouseMove x2, y2
+        ;     MouseGetPos &xpos, &ypos 
+        ;     color := PixelGetColor(xpos, ypos)
+        ;     count++
+        ;     ShortWaitingTime
+        ;     if (count > 300) 
+        ;         ErrorMissTime
+        ;     if (color == c2 || color == c21) {
+        ;         while (color == c2 || color == c21){
+        ;         SetTimer(CloseMsgBox, 500) 
+        ;         MsgBox("bấm play", "Thông báo")
+        ;         Click 
+        ;         ShortWaitingTime
+        ;         color := PixelGetColor(xpos, ypos)
+        ;         }
+        ;         break
+        ;     }
+        ; }
 
 
-        count := 0
-        While (!StopFlag) { ;confirm and click on private game tab
-            if (GetKeyState("PgUp", "P")) {
-                StopFlag := true
-                break
-            }
-            MouseMove x3, y3
-            MouseGetPos &xpos, &ypos 
-            color := PixelGetColor(xpos, ypos)
-            count++
-            ShortWaitingTime
-            if (count > 10000)
-                ErrorMissTime  ;
-            if (color == c3) 
-            {
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("Đang chọn vào private game", "Thông báo")
-                Click 
-                break
-            }
-        }
+        ; count := 0
+        ; While (!StopFlag) { ;confirm and click on private game tab
+        ;     if (GetKeyState("PgUp", "P")) {
+        ;         StopFlag := true
+        ;         break
+        ;     }
+        ;     MouseMove x3, y3
+        ;     MouseGetPos &xpos, &ypos 
+        ;     color := PixelGetColor(xpos, ypos)
+        ;     count++
+        ;     ShortWaitingTime
+        ;     if (count > 10000)
+        ;         ErrorMissTime  ;
+        ;     if (color == c3) 
+        ;     {
+        ;         SetTimer(CloseMsgBox, 500) 
+        ;         MsgBox("Đang chọn vào private game", "Thông báo")
+        ;         Click 
+        ;         break
+        ;     }
+        ; }
 
 
-        count := 0
-        While (!StopFlag) { ;confirm and click on career mode tab
-            if (GetKeyState("PgUp", "P")) {
-                StopFlag := true
-                break
-            } 
-            MouseMove x4, y4
-            MouseGetPos &xpos, &ypos 
-            color := PixelGetColor(xpos, ypos)
-            count++
-            ShortWaitingTime
-            if (count > 100)
-                ErrorMissTime  ;
-            if (color == c4) 
-            {
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("VÀO CAREER", "Thông báo")
-                Click 
-                break
-            }
-        }
+        ; count := 0
+        ; While (!StopFlag) { ;confirm and click on career mode tab
+        ;     if (GetKeyState("PgUp", "P")) {
+        ;         StopFlag := true
+        ;         break
+        ;     } 
+        ;     MouseMove x4, y4
+        ;     MouseGetPos &xpos, &ypos 
+        ;     color := PixelGetColor(xpos, ypos)
+        ;     count++
+        ;     ShortWaitingTime
+        ;     if (count > 100)
+        ;         ErrorMissTime  ;
+        ;     if (color == c4) 
+        ;     {
+        ;         SetTimer(CloseMsgBox, 500) 
+        ;         MsgBox("VÀO CAREER", "Thông báo")
+        ;         Click 
+        ;         break
+        ;     }
+        ; }
 
 
 
-        count := 0
-        While (!StopFlag) { ;confirm and click create private game
-            if (GetKeyState("PgUp", "P")) {
-                StopFlag := true
-                break
-            } 
-            MouseMove x5, y5
-            MouseGetPos &xpos, &ypos 
-            color := PixelGetColor(xpos, ypos)
-            count++
-            ShortWaitingTime
-            if (count > 100)
-                ErrorMissTime  ;
-            if (color == c5) 
-            {
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("tạo private", "Thông báo")
-                Click 
-                break
-            }
-        }
+        ; count := 0
+        ; While (!StopFlag) { ;confirm and click create private game
+        ;     if (GetKeyState("PgUp", "P")) {
+        ;         StopFlag := true
+        ;         break
+        ;     } 
+        ;     MouseMove x5, y5
+        ;     MouseGetPos &xpos, &ypos 
+        ;     color := PixelGetColor(xpos, ypos)
+        ;     count++
+        ;     ShortWaitingTime
+        ;     if (count > 100)
+        ;         ErrorMissTime  ;
+        ;     if (color == c5) 
+        ;     {
+        ;         SetTimer(CloseMsgBox, 500) 
+        ;         MsgBox("tạo private", "Thông báo")
+        ;         Click 
+        ;         break
+        ;     }
+        ; }
 
 
-        count := 0
-        While (!StopFlag) { ;comfirm and click play
-            if (GetKeyState("PgUp", "P")) {
-                StopFlag := true
-                break
-            } ;comfirm and click play
-            MouseMove x6, y6
-            MouseGetPos &xpos, &ypos 
-            color := PixelGetColor(xpos, ypos)
-            count++
-            NormalWaitingTime
-            if (count > 500)
-                ErrorMissTime  ;
-            if (color == c6) 
-            {
-                SetTimer(CloseMsgBox, 500) 
-                MsgBox("bấm bắt đầu trận", "Thông báo")
-                Click 
-                break
-            }
-        }
+        ; count := 0
+        ; While (!StopFlag) { ;comfirm and click play
+        ;     if (GetKeyState("PgUp", "P")) {
+        ;         StopFlag := true
+        ;         break
+        ;     } ;comfirm and click play
+        ;     MouseMove x6, y6
+        ;     MouseGetPos &xpos, &ypos 
+        ;     color := PixelGetColor(xpos, ypos)
+        ;     count++
+        ;     NormalWaitingTime
+        ;     if (count > 500)
+        ;         ErrorMissTime  ;
+        ;     if (color == c6) 
+        ;     {
+        ;         SetTimer(CloseMsgBox, 500) 
+        ;         MsgBox("bấm bắt đầu trận", "Thông báo")
+        ;         Click 
+        ;         break
+        ;     }
+        ; }
 
         ReadyUp
 
@@ -881,6 +962,7 @@ main(){
             SendEvent "{Enter}"
             sleep 1000
             loopCurrent++
+            continue
         }
 
         ;loop count notification
@@ -1194,7 +1276,7 @@ ErrorMissTime() { ;error report, close Program
     MouseGetPos &xpos, &ypos 
     color := PixelGetColor(xpos, ypos)
     if (StopFlag == true){
-        MsgBox("Stop by User", "Time ran out")
+        MsgBox("Stop by User " color, "Time ran out")
     } else MsgBox("unexpected color, the color code collected is: " color, "Time ran out")
     ExitApp
 }

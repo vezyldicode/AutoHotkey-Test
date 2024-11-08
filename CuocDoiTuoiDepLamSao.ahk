@@ -91,7 +91,7 @@ global centerDis := 2440
 
 ; 4 vị trí đặt đồ
 global x10 := 934 ;864
-global y10 := 690 ;690
+global y10 := 690 ;690z
 global x11 := 1021 ;849
 global y11 := 671 ;821
 global x12 := 1101 ;1201
